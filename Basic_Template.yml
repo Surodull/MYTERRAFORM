@@ -1,0 +1,117 @@
+Resources:
+  VPC_Prod:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: True 
+      EnableDnsSupport: True
+      Tags:
+        - Key: Name
+          Value: "Production VPC"
+  VPC_Prod_Public_Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC_Prod
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "us-East-1a"
+      MapPublicIpOnLaunch: True
+      Tags:
+        - Key: Name
+          Value: "Public Subnet"
+  VPC_Prod_Private_Subnet:
+    Type: AWS::EC2::Subnet 
+    Properties:
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref VPC_Prod
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "us-east-2a"
+      Tags:
+        - Key: Name
+          Value: "Private Subnet"
+  Internet_gateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Internet Gateway for the Prod_VPC
+  Internet_Gateway_Attachement:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref Internet_gateway
+      VpcId: !Ref VPC_Prod
+  Public_Route_Table:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC_Prod
+      Tags:
+        - Key: Name
+          Value: Public Route 
+  Default_Public_Route:
+    Type: AWS::EC2::Route
+    Properties: 
+      RouteTableId: !Ref Public_Route_Table
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref Internet_gateway 
+  Public_Route_subnet_Associations:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref Public_Route_Table
+      SubnetId: !Ref VPC_Prod_Public_Subnet
+  Elastic_Ip_NAT:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  Nat_Gateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !Ref Elastic_Ip_NAT
+      SubnetId: !Ref VPC_Prod_Public_Subnet
+  Private_Route_Table:
+    Type:  AWS::EC2::RouteTable
+    Properties: 
+       VpcId: !Ref VPC_Prod
+  Default_Route_Private:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref Private_Route_Table
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref Nat_Gateway
+  Private_Subnet_Associations:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref Private_Route_Table
+      SubnetId: !Ref VPC_Prod_Private_Subnet
+  Security_group:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH and HTTP  
+      VpcId: !Ref VPC_Prod
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+  Ec2_Instance_Creation:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: "us-east-1a"
+      SubnetId: !Ref VPC_Prod_Public_Subnet
+      ImageId: ami-04d29b6f966df1537
+      InstanceType: t2.micro
+      SecurityGroups: !Ref Security_group
+      Tags:
+        - Key: Name
+          Value: WebServer
+      KeyName: Jen
+      
+
+

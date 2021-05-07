@@ -1,0 +1,50 @@
+Parameters:
+  VPCID:
+    Description: VPC ID
+    Type: String
+  SecurityGroups:
+    Description: Security Group for the Launch Configuration
+    Type: String
+  RegionName:
+    Description: Region where the EC2 INstance to be Deployed
+    Type: String
+  AMIName:
+    Description: Name of the AMI from which the EC2 is to be Deployed
+    Type: String
+  InstanceType:
+    Description: Instance Type for the Launch Configuration
+    Type: String
+  KeyPair:
+    Description: Key Pair for the Ec2 Instance
+    Type: String
+  AvailabilityZone:
+    Description: AvailabilityZone
+    Type: String
+Resources:
+  Launchconfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMIName
+      InstanceType: !Ref InstanceType
+      AssociatePublicIpAddress: true
+      InstanceMonitoring: false
+      LaunchConfigurationName: "MY Launch Config"
+      SecurityGroups: 
+        - !Ref SecurityGroups
+  autoscalinggroup:
+      Type: AWS::AutoScaling::AutoScalingGroup
+      Properties:
+        AutoScalingGroupName: ASG_NEW
+        LaunchConfigurationName: "MY Launch Config"
+        AvailabilityZones: !GetAZs 'us-east-1'
+        MaxSize: 3
+        MinSize: 1
+        Tags:
+          - Key: Name
+            Value: MY_ASG
+            PropagateAtLaunch: true
+  
+
+    
+
+
