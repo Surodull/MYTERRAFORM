@@ -1,0 +1,78 @@
+AZURE_SUBSCRIPTION_ID=$(az account list --query '[?isDefault].id' -o tsv)
+AZURE_TENANT_ID=$(az account list --query '[?isDefault].tenantId' -o tsv)
+AZURE_CLIENT_SECRET=$(az ad sp create-for-rbac -n terraformsp --role contributor --query password --output tsv)
+AZURE_CLIENT_ID=$(az ad sp show --id http://terraformsp --query appId --output tsv)
+
+terraform paln -out azureplan.tfplan
+terraform apply  azureplan.tfplan
+
+C:\Users\dmaniks\Desktop\Terraform_POC_Script\Terraform_POC_Script>terraform plan -out azureplan.tfplan
+var.Jumpserver_name
+  Enter the name of Virtual Machine for JumpServer:
+
+  Enter a value: JMP
+
+var.mysql_dbname
+  Enter the Name for MySQL Database to be created:
+
+  Enter a value: nosql
+
+var.mysql_name
+  Enter the Name for MySQL Server:
+
+  Enter a value: tab
+
+var.mysql_password
+  Enter the Password for MySQL Database:
+
+  Enter a value: Password@123
+
+var.mysql_username
+  Enter the Username for MySQL Database:
+
+  Enter a value: rohit
+
+var.nsg_name
+  Enter the name of Network Security Group:
+
+  Enter a value: NSG
+
+var.resourcegroup_name
+  Enter the name of the Resource Group:
+
+  Enter a value: RG
+
+var.subnet1_name
+  Enter the name of Subnet1:
+
+  Enter a value: SUB1
+
+var.subnet2_name
+  Enter the name of Subnet2:
+
+  Enter a value: SUB2
+
+var.subnet3_name
+  Enter the name of Subnet3:
+
+  Enter a value: SUB3
+
+var.vm_name
+  Enter the name of Virtual Machine:
+
+  Enter a value: VM1
+
+var.vm_password
+  Enter the Password to access Virtual Machine:
+
+  Enter a value: Password@123
+
+var.vm_username
+  Enter the Username of Virtual Machine:
+
+  Enter a value: rohit
+
+var.vnet_name
+  Enter the name of the Virtual network:
+
+  Enter a value: VNET
